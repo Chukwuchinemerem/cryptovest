@@ -1,5 +1,15 @@
 from django.contrib import admin
-from .models import InvestmentPlan, Notification
+from .models import InvestmentPlan, Notification, Wallet, UserNotification
+
+@admin.register(Wallet)
+class WalletAdmin(admin.ModelAdmin):
+    list_display = ['crypto_type', 'address']
+    list_editable = ['address']
+
+@admin.register(UserNotification)
+class UserNotificationAdmin(admin.ModelAdmin):
+    list_display = ['user', 'message', 'created_at', 'is_read']
+    list_filter = ['is_read', 'created_at']
 
 @admin.register(InvestmentPlan)
 class PlanAdmin(admin.ModelAdmin):

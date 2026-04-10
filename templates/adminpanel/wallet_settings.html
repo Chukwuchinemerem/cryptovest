@@ -1,0 +1,19 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% load adminpanel_extras %}
+{% block title %}Wallet Settings – Admin | CryptoVest{% endblock %}
+{% block page_title %}Wallet Settings{% endblock %}
+{% block admin_content %}
+<div class="max-w-lg mx-auto glass rounded-2xl p-8 border border-white/5">
+  <h2 class="font-display text-xl font-bold text-white mb-4">Set Wallet Addresses</h2>
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    {% for code, label in CRYPTO_CHOICES %}
+    <div>
+      <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">{{ label }}</label>
+      <input type="text" name="{{ code }}" value="{{ wallets|get_item:code|default:'' }}" placeholder="Enter {{ label }} address" class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn-red w-full py-3.5 rounded-xl font-bold text-sm"><i class="fas fa-wallet mr-2"></i>Save Wallets</button>
+  </form>
+</div>
+{% endblock %}

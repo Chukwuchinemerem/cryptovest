@@ -1,0 +1,44 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Notifications – CryptoVest{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block dashboard_content %}
+<div class="max-w-2xl mx-auto">
+  <div class="glass rounded-3xl p-8 mb-6 border border-white/5">
+    <h3 class="font-display text-lg font-bold text-white mb-2">Your Notifications</h3>
+    <div class="divide-y divide-slate-800">
+      {% for n in notifications %}
+      <div class="py-4 flex items-start gap-4">
+        <div class="w-3 h-3 rounded-full mt-2 flex-shrink-0 {% if not n.is_read %}bg-red-400{% else %}bg-slate-700{% endif %}"></div>
+        <div class="flex-1">
+          <div class="text-slate-200 text-sm">{{ n.message }}</div>
+          <div class="text-slate-500 text-xs mt-1"><span class="time" data-time="{{ n.created_at|date:'c' }}">Just now</span></div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-center py-8">No notifications yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function timeAgo(date) {
+  const now = new Date();
+  const then = new Date(date);
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' minute' + (Math.floor(diff/60)===1?'':'s') + ' ago';
+  if (diff < 86400) return Math.floor(diff/3600) + ' hour' + (Math.floor(diff/3600)===1?'':'s') + ' ago';
+  return Math.floor(diff/86400) + ' day' + (Math.floor(diff/86400)===1?'':'s') + ' ago';
+}
+function updateTimes() {
+  document.querySelectorAll('.time').forEach(function(el) {
+    const dt = el.getAttribute('data-time');
+    if (dt) el.textContent = timeAgo(dt);
+  });
+}
+updateTimes();
+setInterval(updateTimes, 60000);
+</script>
+{% endblock %}

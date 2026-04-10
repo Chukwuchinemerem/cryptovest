@@ -1,5 +1,35 @@
+
 from django.db import models
 from decimal import Decimal
+from django.contrib.auth.models import User
+
+# Wallet model for admin-configurable deposit addresses
+class Wallet(models.Model):
+    CRYPTO_CHOICES = [
+        ('USDT', 'Tether (USDT)'),
+        ('BTC', 'Bitcoin (BTC)'),
+        ('ETH', 'Ethereum (ETH)'),
+        ('BNB', 'BNB'),
+        ('SOL', 'Solana (SOL)'),
+    ]
+    crypto_type = models.CharField(max_length=10, choices=CRYPTO_CHOICES, unique=True)
+    address = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.get_crypto_type_display()} Wallet"
+
+# UserNotification model for per-user notifications
+class UserNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"To {self.user.username}: {self.message[:40]}..."
 
 
 class InvestmentPlan(models.Model):

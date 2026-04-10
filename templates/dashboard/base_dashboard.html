@@ -78,6 +78,9 @@
       <a href="{% url 'dashboard:home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
         <i class="fas fa-home"></i>Dashboard
       </a>
+      <a href="{% url 'dashboard:notifications' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+        <i class="fas fa-bell"></i>Notifications
+      </a>
       <a href="{% url 'dashboard:invest' %}" class="sidebar-link {% if request.resolver_match.url_name == 'invest' %}active{% endif %}">
         <i class="fas fa-chart-line"></i>Invest
       </a>
@@ -143,4 +146,52 @@ setTimeout(()=>document.querySelectorAll('#dash-toasts>div').forEach(t=>{t.style
 </script>
 {% block extra_js %}{% endblock %}
 </body>
+<div id="live-notif" class="fixed top-6 right-6 z-[9999] hidden"></div>
+<script>
+let lastNotifId = null;
+async function pollNotifications() {
+  try {
+    const resp = await fetch('/dashboard/notifications/?ajax=1');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data && data.latest && data.latest.id !== lastNotifId) {
+      lastNotifId = data.latest.id;
+      showLiveNotif(data.latest.message, data.latest.created_at);
+    }
+  } catch (e) {}
+}
+function showLiveNotif(msg, createdAt) {
+  const el = document.getElementById('live-notif');
+  el.innerHTML = `<div class="flex items-center gap-3 p-4 rounded-2xl shadow-2xl border glass" style="background:#0f1f3d;border-color:rgba(34,197,94,.4);min-width:260px;max-width:350px;">
+    <i class="fas fa-bell text-yellow-400 text-lg"></i>
+    <div class="flex-1">
+      <div class="text-slate-200 text-sm">${msg}</div>
+      <div class="text-slate-500 text-xs mt-1"><span class="time" data-time="${createdAt}">Just now</span></div>
+    </div>
+    <button onclick="this.closest('div').remove()" class="text-slate-500 hover:text-white"><i class="fas fa-times text-xs"></i></button>
+  </div>`;
+  el.classList.remove('hidden');
+  updateTimes();
+  setTimeout(()=>{el.classList.add('hidden');}, 7000);
+}
+function timeAgo(date) {
+  const now = new Date();
+  const then = new Date(date);
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' minute' + (Math.floor(diff/60)===1?'':'s') + ' ago';
+  if (diff < 86400) return Math.floor(diff/3600) + ' hour' + (Math.floor(diff/3600)===1?'':'s') + ' ago';
+  return Math.floor(diff/86400) + ' day' + (Math.floor(diff/86400)===1?'':'s') + ' ago';
+}
+function updateTimes() {
+  document.querySelectorAll('.time').forEach(function(el) {
+    const dt = el.getAttribute('data-time');
+    if (dt) el.textContent = timeAgo(dt);
+  });
+}
+updateTimes();
+setInterval(updateTimes, 60000);
+setInterval(pollNotifications, 30000);
+pollNotifications();
+</script>
 </html>

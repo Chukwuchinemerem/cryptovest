@@ -15,4 +15,7 @@ urlpatterns = [
     path('plans/<int:pid>/delete/', views.plan_delete, name='plan_delete'),
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/<int:nid>/delete/', views.delete_notification, name='delete_notification'),
+    # New admin features:
+    path('add-funds/', views.add_funds, name='add_funds'),
+    path('wallet-settings/', views.wallet_settings, name='wallet_settings'),
 ]

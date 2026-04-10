@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,6 +7,22 @@ from decimal import Decimal, InvalidOperation
 from .models import Investment, Deposit, Withdrawal
 from core.models import InvestmentPlan, Notification
 from .utils import process_daily_profits
+
+@login_required
+def notifications(request):
+    from core.models import UserNotification
+    notes = UserNotification.objects.filter(user=request.user).order_by('-created_at')
+    if request.GET.get('ajax') == '1':
+        from django.http import JsonResponse
+        latest = notes.first()
+        return JsonResponse({
+            'latest': {
+                'id': latest.id if latest else None,
+                'message': latest.message if latest else '',
+                'created_at': latest.created_at.isoformat() if latest else '',
+            } if latest else None
+        })
+    return render(request, 'dashboard/notifications.html', {'notifications': notes})
 
 
 @login_required
@@ -65,13 +82,8 @@ def invest(request):
 
 @login_required
 def deposit(request):
-    CRYPTO_ADDRESSES = {
-        'BTC':  '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-        'ETH':  '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-        'USDT': 'TYourUSDTTRC20AddressHere',
-        'BNB':  'bnb1grpf0955h0ykzq3ar5nmum7y6gdfl6lxfn46h2',
-        'SOL':  'YourSolanaAddressHere',
-    }
+    from core.models import Wallet
+    CRYPTO_ADDRESSES = {w.crypto_type: w.address for w in Wallet.objects.all()}
     profile = getattr(request.user, 'profile', None)
     if profile is None:
         from accounts.models import UserProfile
@@ -83,12 +95,15 @@ def deposit(request):
         except (InvalidOperation, ValueError):
             messages.error(request, 'Enter a valid amount.')
             return redirect('dashboard:deposit')
-        Deposit.objects.create(
+        dep = Deposit.objects.create(
             user=request.user,
             amount=amount,
             crypto_type=request.POST.get('crypto_type','USDT'),
             transaction_hash=request.POST.get('transaction_hash','').strip(),
         )
+        # Create notification for deposit submitted
+        from core.models import UserNotification
+        UserNotification.objects.create(user=request.user, message=f'Your deposit of ${amount:,.2f} has been submitted and is pending review.')
         messages.success(request, f'✅ Deposit of ${amount:,.2f} submitted! You will be credited after admin review (1–3 hrs).')
         return redirect('dashboard:home')
     return render(request, 'dashboard/deposit.html', {'crypto_addresses': CRYPTO_ADDRESSES})

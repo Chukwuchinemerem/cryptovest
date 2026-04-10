@@ -8,4 +8,5 @@ urlpatterns = [
     path('withdraw/', views.withdraw, name='withdraw'),
     path('transactions/', views.transactions, name='transactions'),
     path('referral/', views.referral, name='referral'),
+    path('notifications/', views.notifications, name='notifications'),
 ]

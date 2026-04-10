@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -5,15 +6,59 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum
 from decimal import Decimal
-from core.models import InvestmentPlan, Notification
+from core.models import InvestmentPlan, Notification, Wallet, UserNotification
 from dashboard.models import Investment, Deposit, Withdrawal
-
 
 def is_admin(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 def admin_required(fn):
     return login_required(user_passes_test(is_admin, login_url='/accounts/login/')(fn))
+
+@admin_required
+def add_funds(request):
+    users = User.objects.filter(is_staff=False)
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        amount = request.POST.get('amount')
+        try:
+            user = users.get(id=user_id)
+            amount = Decimal(amount)
+            if amount <= 0:
+                raise ValueError()
+        except Exception:
+            messages.error(request, 'Invalid user or amount.')
+            return redirect('adminpanel:add_funds')
+        # Update balance
+        profile = getattr(user, 'profile', None)
+        if profile is None:
+            from accounts.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.balance += amount
+        profile.total_deposited += amount
+        profile.save(update_fields=['balance', 'total_deposited'])
+        # Create deposit record
+        Deposit.objects.create(user=user, amount=amount, crypto_type='USDT', status='approved')
+        # Create notification
+        UserNotification.objects.create(user=user, message=f'Your deposit of ${amount:,.2f} has been confirmed.')
+        messages.success(request, f'${amount:,.2f} added to {user.username} successfully!')
+        return redirect('adminpanel:add_funds')
+    return render(request, 'adminpanel/add_funds.html', {'users': users})
+
+@admin_required
+def wallet_settings(request):
+    wallets = {w.crypto_type: w for w in Wallet.objects.all()}
+    CRYPTO_CHOICES = Wallet.CRYPTO_CHOICES
+    if request.method == 'POST':
+        for code, _ in CRYPTO_CHOICES:
+            addr = request.POST.get(code)
+            if addr:
+                wallet, _ = Wallet.objects.get_or_create(crypto_type=code)
+                wallet.address = addr
+                wallet.save()
+        messages.success(request, 'Wallet addresses updated!')
+        return redirect('adminpanel:wallet_settings')
+    return render(request, 'adminpanel/wallet_settings.html', {'wallets': wallets, 'CRYPTO_CHOICES': CRYPTO_CHOICES})
 
 
 @admin_required
@@ -69,6 +114,9 @@ def approve_deposit(request, did):
             p.save(update_fields=['balance','total_deposited'])
             from dashboard.utils import award_referral_bonus
             award_referral_bonus(dep.user)
+            # Create notification for deposit confirmed
+            from core.models import UserNotification
+            UserNotification.objects.create(user=dep.user, message=f'Your deposit of ${dep.amount:,.2f} has been confirmed.')
             messages.success(request, f'Deposit of ${dep.amount:,.2f} approved for {dep.user.username}.')
         elif action == 'reject' and dep.status == 'pending':
             dep.status = 'rejected'
