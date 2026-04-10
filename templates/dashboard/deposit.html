@@ -56,7 +56,7 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-const addrs={{% for sym,addr in crypto_addresses.items %}'{{ sym }}':'{{ addr }}'{% if not forloop.last %},{% endif %}{% endfor %}};
+const addrs = JSON.parse('{{ crypto_addresses|safe|escapejs }}'.replace(/'/g, '"'));
 function updateAddr(){
   const sel=document.getElementById('crypto-sel').value;
   document.querySelectorAll('.crypto-addr').forEach(el=>el.classList.toggle('hidden',el.dataset.sym!==sel));

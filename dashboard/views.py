@@ -11,7 +11,10 @@ from .utils import process_daily_profits
 @login_required
 def home(request):
     process_daily_profits(request.user)
-    profile = request.user.profile
+    profile = getattr(request.user, 'profile', None)
+    if profile is None:
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
     active_investments = Investment.objects.filter(user=request.user, status='active').select_related('plan')
     recent_deposits = Deposit.objects.filter(user=request.user)[:5]
     recent_withdrawals = Withdrawal.objects.filter(user=request.user)[:5]
@@ -39,7 +42,10 @@ def invest(request):
             messages.error(request, 'Invalid amount.')
             return redirect('dashboard:invest')
         plan = get_object_or_404(InvestmentPlan, id=plan_id, is_active=True)
-        profile = request.user.profile
+        profile = getattr(request.user, 'profile', None)
+        if profile is None:
+            from accounts.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
         if amount < plan.min_deposit:
             messages.error(request, f'Minimum for {plan.name} is ${plan.min_deposit:,.2f}.')
             return redirect('dashboard:invest')
@@ -66,6 +72,10 @@ def deposit(request):
         'BNB':  'bnb1grpf0955h0ykzq3ar5nmum7y6gdfl6lxfn46h2',
         'SOL':  'YourSolanaAddressHere',
     }
+    profile = getattr(request.user, 'profile', None)
+    if profile is None:
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         try:
             amount = Decimal(request.POST.get('amount','0'))
@@ -86,7 +96,10 @@ def deposit(request):
 
 @login_required
 def withdraw(request):
-    profile = request.user.profile
+    profile = getattr(request.user, 'profile', None)
+    if profile is None:
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         try:
             amount = Decimal(request.POST.get('amount','0'))
@@ -128,8 +141,11 @@ def transactions(request):
 
 @login_required
 def referral(request):
-    profile = request.user.profile
-    referrals = request.user.referrals.select_related('profile').all()
+    profile = getattr(request.user, 'profile', None)
+    if profile is None:
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    referrals = request.user.referrals.select_related('user').all()
     return render(request, 'dashboard/referral.html', {
         'profile': profile,
         'referral_link': profile.get_referral_link(request),
