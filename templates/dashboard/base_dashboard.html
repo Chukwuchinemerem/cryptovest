@@ -148,14 +148,16 @@ setTimeout(()=>document.querySelectorAll('#dash-toasts>div').forEach(t=>{t.style
 </body>
 <div id="live-notif" class="fixed top-6 right-6 z-[9999] hidden"></div>
 <script>
-let lastNotifId = null;
+const NOTIF_KEY = 'cryptovest_last_seen_notif_id';
+let lastNotifId = localStorage.getItem(NOTIF_KEY) ? parseInt(localStorage.getItem(NOTIF_KEY)) : null;
 async function pollNotifications() {
   try {
     const resp = await fetch('/dashboard/notifications/?ajax=1');
     if (!resp.ok) return;
     const data = await resp.json();
-    if (data && data.latest && data.latest.id !== lastNotifId) {
+    if (data && data.latest && data.latest.id && data.latest.id !== lastNotifId) {
       lastNotifId = data.latest.id;
+      localStorage.setItem(NOTIF_KEY, lastNotifId);
       showLiveNotif(data.latest.message, data.latest.created_at);
     }
   } catch (e) {}
