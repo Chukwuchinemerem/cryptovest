@@ -1,0 +1,36 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% block title %}Deposits – Admin{% endblock %}
+{% block page_title %}Deposit Management{% endblock %}
+{% block admin_content %}
+<div class="glass rounded-2xl overflow-hidden border border-white/5">
+  <div class="overflow-x-auto"><table class="w-full text-sm">
+    <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">User</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">Amount</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider hidden sm:table-cell">Crypto</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider hidden md:table-cell">TxHash</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider hidden sm:table-cell">Date</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">Status</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">Actions</th>
+    </tr></thead>
+    <tbody>{% for d in deposits %}
+    <tr style="border-bottom:1px solid rgba(255,255,255,.03);" class="hover:bg-white/2 transition-colors">
+      <td class="p-4"><div class="text-white text-sm font-medium">{{ d.user.get_full_name|default:d.user.username }}</div><div class="text-slate-500 text-xs">{{ d.user.email }}</div></td>
+      <td class="p-4 text-white font-bold text-sm">${{ d.amount|floatformat:2 }}</td>
+      <td class="p-4 text-slate-300 text-sm hidden sm:table-cell">{{ d.crypto_type }}</td>
+      <td class="p-4 text-slate-500 font-mono text-xs hidden md:table-cell">{{ d.transaction_hash|truncatechars:18 }}</td>
+      <td class="p-4 text-slate-400 text-sm hidden sm:table-cell">{{ d.created_at|date:"M d, Y" }}</td>
+      <td class="p-4"><span class="badge-{{ d.status }} text-xs px-2.5 py-1 rounded-full font-semibold">{{ d.status|title }}</span></td>
+      <td class="p-4">
+        {% if d.status == 'pending' %}
+        <form method="post" action="{% url 'adminpanel:approve_deposit' d.id %}" class="flex gap-1.5">
+          {% csrf_token %}
+          <button name="action" value="approve" class="btn-green px-3 py-1.5 rounded-lg text-xs" onclick="return confirm('Approve this deposit?')"><i class="fas fa-check mr-1"></i>Approve</button>
+          <button name="action" value="reject" class="btn-red px-3 py-1.5 rounded-lg text-xs" onclick="return confirm('Reject this deposit?')"><i class="fas fa-times mr-1"></i>Reject</button>
+        </form>
+        {% else %}<span class="text-slate-600 text-xs">Processed</span>{% endif %}
+      </td>
+    </tr>{% empty %}<tr><td colspan="7" class="p-8 text-center text-slate-500">No deposit records.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

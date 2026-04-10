@@ -1,0 +1,83 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% block title %}{% if plan %}Edit Plan{% else %}Create Plan{% endif %} – Admin{% endblock %}
+{% block page_title %}{% if plan %}Edit: {{ plan.name }}{% else %}Create New Investment Plan{% endif %}{% endblock %}
+{% block admin_content %}
+<div class="max-w-2xl mx-auto">
+  <div class="glass rounded-3xl p-8 border border-white/5">
+    <p class="text-slate-400 text-sm mb-6">{% if plan %}Update this investment plan. Changes will reflect on the homepage and user dashboard immediately.{% else %}Create a new investment plan. It will appear on the homepage and user dashboard once published.{% endif %}</p>
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Plan Name *</label>
+          <input type="text" name="name" value="{{ plan.name|default:'' }}" required placeholder="e.g. Gold, Platinum"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Badge Label</label>
+          <input type="text" name="badge" value="{{ plan.badge|default:'' }}" placeholder="e.g. Popular, Best Value"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Min Deposit ($) *</label>
+          <input type="number" name="min_deposit" value="{{ plan.min_deposit|default:'' }}" required step="0.01" min="1" placeholder="50"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Max Deposit ($) *</label>
+          <input type="number" name="max_deposit" value="{{ plan.max_deposit|default:'' }}" required step="0.01" min="1" placeholder="999"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Daily Profit (%) *</label>
+          <input type="number" name="daily_profit_percent" value="{{ plan.daily_profit_percent|default:'' }}" required step="0.01" min="0.01" max="100" placeholder="1.50"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Duration (Days) *</label>
+          <input type="number" name="duration_days" value="{{ plan.duration_days|default:'' }}" required min="1" placeholder="30"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Color Class</label>
+          <select name="color_class" class="w-full px-4 py-3 rounded-xl text-white focus:outline-none" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+            <option value="bronze" {% if plan.color_class == 'bronze' %}selected{% endif %}>Bronze</option>
+            <option value="silver" {% if plan.color_class == 'silver' %}selected{% endif %}>Silver</option>
+            <option value="gold" {% if plan.color_class == 'gold' %}selected{% endif %}>Gold</option>
+            <option value="platinum" {% if plan.color_class == 'platinum' %}selected{% endif %}>Platinum</option>
+            <option value="diamond" {% if plan.color_class == 'diamond' %}selected{% endif %}>Diamond</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Icon (Font Awesome name)</label>
+          <input type="text" name="icon" value="{{ plan.icon|default:'gem' }}" placeholder="gem, coins, crown, seedling"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Display Order</label>
+          <input type="number" name="order" value="{{ plan.order|default:'0' }}" min="0" placeholder="0"
+            class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+        </div>
+        <div class="flex items-center gap-3 pt-6">
+          <input type="checkbox" name="is_active" id="is_active" {% if not plan or plan.is_active %}checked{% endif %} class="w-5 h-5 rounded accent-red-500">
+          <label for="is_active" class="text-slate-300 text-sm font-medium">Plan is Active (visible to users)</label>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-red px-8 py-3.5 rounded-xl font-bold text-sm">
+          <i class="fas fa-save mr-2"></i>{% if plan %}Update Plan{% else %}Create Plan{% endif %}
+        </button>
+        <a href="{% url 'adminpanel:plans' %}" class="px-6 py-3.5 rounded-xl text-slate-400 hover:text-white text-sm font-medium transition-colors" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

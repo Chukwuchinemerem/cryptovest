@@ -1,0 +1,44 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% block title %}User: {{ viewed_user.username }} – Admin{% endblock %}
+{% block page_title %}User: {{ viewed_user.get_full_name|default:viewed_user.username }}{% endblock %}
+{% block admin_content %}
+<div class="grid md:grid-cols-3 gap-4 mb-8">
+  <div class="glass rounded-2xl p-5 border border-white/5"><div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Balance</div><div class="text-2xl font-display font-black text-white">${{ viewed_user.profile.balance|floatformat:2 }}</div></div>
+  <div class="glass rounded-2xl p-5 border border-white/5"><div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Deposited</div><div class="text-2xl font-display font-black text-sky-400">${{ viewed_user.profile.total_deposited|floatformat:2 }}</div></div>
+  <div class="glass rounded-2xl p-5 border border-white/5"><div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Profits</div><div class="text-2xl font-display font-black text-green-400">${{ viewed_user.profile.total_profits|floatformat:2 }}</div></div>
+</div>
+<div class="glass rounded-2xl p-6 mb-6 border border-white/5">
+  <h3 class="font-display font-bold text-white mb-4 text-sm">Account Info</h3>
+  <div class="grid sm:grid-cols-2 gap-4 text-sm">
+    <div><span class="text-slate-500">Username:</span> <span class="text-white ml-2">{{ viewed_user.username }}</span></div>
+    <div><span class="text-slate-500">Email:</span> <span class="text-white ml-2">{{ viewed_user.email }}</span></div>
+    <div><span class="text-slate-500">Full Name:</span> <span class="text-white ml-2">{{ viewed_user.get_full_name }}</span></div>
+    <div><span class="text-slate-500">Country:</span> <span class="text-white ml-2">{{ viewed_user.profile.country|default:"N/A" }}</span></div>
+    <div><span class="text-slate-500">Phone:</span> <span class="text-white ml-2">{{ viewed_user.profile.phone|default:"N/A" }}</span></div>
+    <div><span class="text-slate-500">Joined:</span> <span class="text-white ml-2">{{ viewed_user.date_joined|date:"M d, Y" }}</span></div>
+    <div><span class="text-slate-500">Referral Code:</span> <span class="text-red-400 font-mono ml-2">{{ viewed_user.profile.referral_code }}</span></div>
+    <div><span class="text-slate-500">Referral Bonus:</span> <span class="text-green-400 ml-2">${{ viewed_user.profile.referral_bonus_earned|floatformat:2 }}</span></div>
+  </div>
+</div>
+<div class="mb-6">
+  <h3 class="font-display font-bold text-white mb-3 text-sm">Investments ({{ investments.count }})</h3>
+  <div class="space-y-2">{% for inv in investments %}
+  <div class="glass rounded-xl p-4 flex flex-wrap items-center gap-3 border border-white/5">
+    <div class="flex-1"><div class="text-white text-sm font-medium">{{ inv.plan.name }} Plan</div><div class="text-slate-500 text-xs">{{ inv.start_date|date:"M d, Y" }}</div></div>
+    <div class="text-white text-sm font-bold">${{ inv.amount|floatformat:2 }}</div>
+    <div class="text-green-400 text-sm">+${{ inv.profit_earned|floatformat:2 }}</div>
+    <span class="badge-{{ inv.status }} text-xs px-2 py-0.5 rounded-full">{{ inv.status|title }}</span>
+  </div>{% empty %}<div class="glass rounded-xl p-4 text-center text-slate-500 text-sm border border-white/5">No investments.</div>{% endfor %}</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+  <div>
+    <h3 class="font-display font-bold text-white mb-3 text-sm">Deposits ({{ deposits.count }})</h3>
+    <div class="space-y-2">{% for d in deposits %}<div class="glass rounded-xl p-3.5 flex items-center justify-between border border-white/5"><div><div class="text-white text-sm">${{ d.amount|floatformat:2 }} · {{ d.crypto_type }}</div><div class="text-slate-500 text-xs">{{ d.created_at|date:"M d, Y" }}</div></div><span class="badge-{{ d.status }} text-xs px-2 py-0.5 rounded-full">{{ d.status|title }}</span></div>{% empty %}<div class="glass rounded-xl p-4 text-center text-slate-500 text-sm border border-white/5">None.</div>{% endfor %}</div>
+  </div>
+  <div>
+    <h3 class="font-display font-bold text-white mb-3 text-sm">Withdrawals ({{ withdrawals.count }})</h3>
+    <div class="space-y-2">{% for w in withdrawals %}<div class="glass rounded-xl p-3.5 flex items-center justify-between border border-white/5"><div><div class="text-white text-sm">${{ w.amount|floatformat:2 }} · {{ w.crypto_type }}</div><div class="text-slate-500 text-xs">{{ w.created_at|date:"M d, Y" }}</div></div><span class="badge-{{ w.status }} text-xs px-2 py-0.5 rounded-full">{{ w.status|title }}</span></div>{% empty %}<div class="glass rounded-xl p-4 text-center text-slate-500 text-sm border border-white/5">None.</div>{% endfor %}</div>
+  </div>
+</div>
+<div class="mt-6"><a href="{% url 'adminpanel:users' %}" class="text-slate-400 hover:text-white text-sm transition-colors"><i class="fas fa-arrow-left mr-2"></i>Back to Users</a></div>
+{% endblock %}

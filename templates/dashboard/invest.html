@@ -1,0 +1,83 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Invest – CryptoVest{% endblock %}
+{% block page_title %}Investment Plans{% endblock %}
+{% block dashboard_content %}
+<p class="text-slate-400 text-sm mb-6">Choose a plan and invest from your available balance. Profits are credited daily.</p>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-8">
+  {% for plan in plans %}
+  <div class="glass rounded-2xl p-5 border border-white/5 hover:border-red-500/30 transition-all cursor-pointer group"
+       onclick="openModal({{ plan.id }},'{{ plan.name }}',{{ plan.min_deposit }},{{ plan.max_deposit }},{{ plan.daily_profit_percent }},{{ plan.duration_days }})">
+    <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style="background:rgba(220,38,38,.1);">
+      <i class="fas fa-{{ plan.icon }} text-red-400 text-lg"></i>
+    </div>
+    <h3 class="font-display font-bold text-white mb-1 text-sm">{{ plan.name }}</h3>
+    <div class="text-2xl font-display font-black text-red-400 mb-0.5">{{ plan.daily_profit_percent }}%</div>
+    <div class="text-slate-500 text-xs mb-4">Daily profit</div>
+    <div class="space-y-2 text-xs mb-5">
+      <div class="flex justify-between py-1 border-b border-white/5"><span class="text-slate-400">Min</span><span class="text-white font-medium">${{ plan.min_deposit }}</span></div>
+      <div class="flex justify-between py-1 border-b border-white/5"><span class="text-slate-400">Max</span><span class="text-white font-medium">${{ plan.max_deposit }}</span></div>
+      <div class="flex justify-between py-1 border-b border-white/5"><span class="text-slate-400">Duration</span><span class="text-white font-medium">{{ plan.duration_days }} days</span></div>
+      <div class="flex justify-between py-1"><span class="text-slate-400">Total ROI</span><span class="text-green-400 font-bold">{{ plan.total_return_percent }}%</span></div>
+    </div>
+    <div class="btn-red text-center py-2.5 rounded-xl text-xs font-bold opacity-0 group-hover:opacity-100 transition-all">Select Plan</div>
+  </div>
+  {% empty %}
+  <div class="col-span-5 glass rounded-2xl p-12 text-center text-slate-500 border border-white/5">No plans available yet.</div>
+  {% endfor %}
+</div>
+
+<!-- Modal -->
+<div id="invest-modal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hidden">
+  <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" onclick="closeModal()"></div>
+  <div class="relative rounded-3xl p-8 w-full max-w-md border border-red-500/20 shadow-2xl" style="background:#0a1628;">
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all"><i class="fas fa-times text-sm"></i></button>
+    <h3 class="font-display text-xl font-bold text-white mb-1" id="m-name">Invest</h3>
+    <p class="text-slate-400 text-sm mb-5" id="m-info"></p>
+    <div class="flex justify-between items-center p-3 rounded-xl mb-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
+      <span class="text-slate-400 text-sm">Your Balance</span>
+      <span class="text-white font-bold font-display">${{ request.user.profile.balance|floatformat:2 }}</span>
+    </div>
+    <form method="post" action="{% url 'dashboard:invest' %}">
+      {% csrf_token %}
+      <input type="hidden" name="plan_id" id="m-pid">
+      <div class="mb-4">
+        <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Amount (USD)</label>
+        <input type="number" name="amount" id="m-amount" step="0.01" required
+          class="w-full px-4 py-3 rounded-xl text-white focus:outline-none placeholder-slate-600"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);" placeholder="Enter amount">
+        <p class="text-slate-600 text-xs mt-1" id="m-range"></p>
+      </div>
+      <div class="rounded-xl p-4 mb-5 space-y-2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);">
+        <div class="flex justify-between text-sm"><span class="text-slate-400">Daily Profit</span><span class="text-green-400 font-semibold" id="m-daily">$0.00</span></div>
+        <div class="flex justify-between text-sm"><span class="text-slate-400">Total Expected</span><span class="text-green-400 font-bold" id="m-total">$0.00</span></div>
+      </div>
+      <button type="submit" class="btn-red w-full py-3.5 rounded-xl font-bold text-sm"><i class="fas fa-rocket mr-2"></i>Confirm Investment</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+let cPlan={};
+function openModal(id,name,min,max,daily,days){
+  cPlan={id,name,min,max,daily,days};
+  document.getElementById('m-pid').value=id;
+  document.getElementById('m-name').textContent=name+' Plan';
+  document.getElementById('m-info').textContent=daily+'% daily profit for '+days+' days';
+  document.getElementById('m-range').textContent='Min: $'+min+' — Max: $'+max;
+  document.getElementById('m-amount').min=min; document.getElementById('m-amount').max=max;
+  document.getElementById('invest-modal').classList.remove('hidden');
+  document.getElementById('m-amount').focus();
+}
+function closeModal(){document.getElementById('invest-modal').classList.add('hidden');}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('m-amount').addEventListener('input',function(){
+    const a=parseFloat(this.value)||0;
+    const d=(a*cPlan.daily/100).toFixed(2);
+    const t=(a*cPlan.daily/100*cPlan.days).toFixed(2);
+    document.getElementById('m-daily').textContent='$'+d;
+    document.getElementById('m-total').textContent='$'+t;
+  });
+});
+</script>
+{% endblock %}

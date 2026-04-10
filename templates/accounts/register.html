@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Create Account – CryptoVest{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 pt-32 pb-12">
+  <div class="absolute inset-0 opacity-10" style="background:radial-gradient(ellipse at 20% 50%,rgba(220,38,38,.5),transparent 40%),radial-gradient(ellipse at 80% 20%,rgba(56,189,248,.3),transparent 40%);"></div>
+  <div class="relative z-10 w-full max-w-lg">
+    <div class="text-center mb-8">
+      <a href="{% url 'core:landing' %}" class="inline-flex items-center gap-2.5 mb-5">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#b91c1c,#dc2626);"><i class="fas fa-chart-line text-white"></i></div>
+        <span class="font-display text-2xl font-bold text-white">Crypto<span style="color:#dc2626;">Vest</span></span>
+      </a>
+      <h1 class="font-display text-2xl font-bold text-white">Create Your Account</h1>
+      <p class="text-slate-400 text-sm mt-1">Join 50,000+ investors earning daily profits</p>
+      {% if referrer %}<div class="mt-2 text-xs px-3 py-1.5 rounded-full inline-block" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;"><i class="fas fa-gift mr-1"></i>Referred by {{ referrer.get_full_name|default:referrer.username }}</div>{% endif %}
+    </div>
+    <div class="glass rounded-3xl p-8 border border-white/8">
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="ref_code" value="{{ ref_code }}">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">First Name</label>
+            <input name="first_name" type="text" required placeholder="John" class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+            {% if form.first_name.errors %}<p class="text-red-400 text-xs mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Last Name</label>
+            <input name="last_name" type="text" required placeholder="Doe" class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+          </div>
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Username</label>
+          <input name="username" type="text" required placeholder="johndoe123" class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+          {% if form.username.errors %}<p class="text-red-400 text-xs mt-1">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Email Address</label>
+          <input name="email" type="email" required placeholder="john@email.com" class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+          {% if form.email.errors %}<p class="text-red-400 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Phone (Optional)</label>
+            <input name="phone" type="text" placeholder="+234..." class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+          </div>
+          <div>
+            <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Country</label>
+            <input name="country" type="text" placeholder="Nigeria" class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+          </div>
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Password</label>
+          <div class="relative">
+            <input name="password1" type="password" id="p1" required placeholder="Create strong password" class="w-full px-4 py-3 pr-10 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+            <button type="button" onclick="tp('p1',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><i class="fas fa-eye text-sm"></i></button>
+          </div>
+          {% if form.password1.errors %}<p class="text-red-400 text-xs mt-1">{{ form.password1.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs uppercase tracking-wider mb-1.5 block font-medium">Confirm Password</label>
+          <div class="relative">
+            <input name="password2" type="password" id="p2" required placeholder="Repeat password" class="w-full px-4 py-3 pr-10 rounded-xl text-white text-sm focus:outline-none placeholder-slate-600" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+            <button type="button" onclick="tp('p2',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"><i class="fas fa-eye text-sm"></i></button>
+          </div>
+          {% if form.password2.errors %}<p class="text-red-400 text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+        </div>
+        {% if form.non_field_errors %}
+        <div class="p-3 rounded-xl text-red-400 text-sm" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+        {% endif %}
+        <button type="submit" class="btn-red w-full py-3.5 rounded-xl font-bold text-sm mt-1"><i class="fas fa-user-plus mr-2"></i>Create Account</button>
+      </form>
+      <p class="text-center text-slate-500 text-sm mt-5">Already have an account? <a href="{% url 'accounts:login' %}" class="text-red-400 hover:text-red-300 font-semibold">Login here</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>function tp(id,btn){var i=document.getElementById(id);i.type=i.type=='password'?'text':'password';btn.querySelector('i').className=i.type=='password'?'fas fa-eye text-sm':'fas fa-eye-slash text-sm';}</script>{% endblock %}

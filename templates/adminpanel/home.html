@@ -1,0 +1,37 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% block title %}Overview – Admin{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block admin_content %}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="glass rounded-2xl p-5 border border-white/5 hover:border-red-500/20 transition-all"><div class="flex items-center justify-between mb-3"><span class="text-slate-400 text-xs uppercase tracking-wider">Users</span><i class="fas fa-users text-red-400"></i></div><div class="text-3xl font-display font-black text-white">{{ total_users }}</div><div class="text-slate-500 text-xs mt-1">Registered</div></div>
+  <div class="glass rounded-2xl p-5 border border-white/5 hover:border-sky-500/20 transition-all"><div class="flex items-center justify-between mb-3"><span class="text-slate-400 text-xs uppercase tracking-wider">Deposited</span><i class="fas fa-arrow-down text-sky-400"></i></div><div class="text-3xl font-display font-black text-sky-400">${{ total_deposits|floatformat:0 }}</div><div class="text-slate-500 text-xs mt-1">Total approved</div></div>
+  <div class="glass rounded-2xl p-5 border border-white/5 hover:border-green-500/20 transition-all"><div class="flex items-center justify-between mb-3"><span class="text-slate-400 text-xs uppercase tracking-wider">Withdrawn</span><i class="fas fa-arrow-up text-green-400"></i></div><div class="text-3xl font-display font-black text-green-400">${{ total_withdrawals|floatformat:0 }}</div><div class="text-slate-500 text-xs mt-1">Total approved</div></div>
+  <div class="glass rounded-2xl p-5 border border-white/5 hover:border-purple-500/20 transition-all"><div class="flex items-center justify-between mb-3"><span class="text-slate-400 text-xs uppercase tracking-wider">Investments</span><i class="fas fa-chart-line text-purple-400"></i></div><div class="text-3xl font-display font-black text-purple-400">{{ active_investments }}</div><div class="text-slate-500 text-xs mt-1">Active now</div></div>
+</div>
+{% if pending_deposits or pending_withdrawals %}
+<div class="grid sm:grid-cols-2 gap-4 mb-8">
+  {% if pending_deposits %}<a href="{% url 'adminpanel:deposits' %}" class="flex items-center gap-4 glass rounded-2xl p-5 border border-yellow-500/30 hover:border-yellow-500/50 transition-all"><div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(245,158,11,.15);"><i class="fas fa-clock text-yellow-400 text-lg"></i></div><div><div class="text-white font-semibold text-sm">{{ pending_deposits }} Pending Deposits</div><div class="text-slate-400 text-xs">Awaiting approval</div></div><i class="fas fa-arrow-right text-slate-600 ml-auto"></i></a>{% endif %}
+  {% if pending_withdrawals %}<a href="{% url 'adminpanel:withdrawals' %}" class="flex items-center gap-4 glass rounded-2xl p-5 border border-orange-500/30 hover:border-orange-500/50 transition-all"><div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,.15);"><i class="fas fa-money-bill-transfer text-orange-400 text-lg"></i></div><div><div class="text-white font-semibold text-sm">{{ pending_withdrawals }} Pending Withdrawals</div><div class="text-slate-400 text-xs">Awaiting processing</div></div><i class="fas fa-arrow-right text-slate-600 ml-auto"></i></a>{% endif %}
+</div>
+{% endif %}
+<h2 class="font-display font-bold text-white mb-4 text-sm">Recent Registrations</h2>
+<div class="glass rounded-2xl overflow-hidden border border-white/5">
+  <div class="overflow-x-auto"><table class="w-full text-sm">
+    <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">User</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider hidden sm:table-cell">Email</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">Balance</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider hidden md:table-cell">Joined</th>
+      <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider">Action</th>
+    </tr></thead>
+    <tbody>{% for u in recent_users %}
+    <tr style="border-bottom:1px solid rgba(255,255,255,.03);" class="hover:bg-white/2 transition-colors">
+      <td class="p-4"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:linear-gradient(135deg,#b91c1c,#dc2626);">{{ u.first_name|first|upper }}{{ u.last_name|first|upper }}</div><span class="text-white text-sm">{{ u.get_full_name|default:u.username }}</span></div></td>
+      <td class="p-4 text-slate-400 text-sm hidden sm:table-cell">{{ u.email }}</td>
+      <td class="p-4 text-red-400 font-semibold text-sm">${{ u.profile.balance|floatformat:2 }}</td>
+      <td class="p-4 text-slate-400 text-sm hidden md:table-cell">{{ u.date_joined|date:"M d, Y" }}</td>
+      <td class="p-4"><a href="{% url 'adminpanel:user_detail' u.id %}" class="text-red-400 hover:text-red-300 text-xs font-medium">View →</a></td>
+    </tr>{% empty %}<tr><td colspan="5" class="p-8 text-center text-slate-500">No users yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

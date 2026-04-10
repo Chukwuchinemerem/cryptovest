@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}CryptoVest – AI-Powered Crypto Investment Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ===== HERO CAROUSEL ===== */
+.hero-carousel{position:relative;width:100%;height:100vh;min-height:600px;overflow:hidden;}
+.slide{position:absolute;inset:0;transition:opacity .9s ease, transform .9s ease;opacity:0;transform:translateX(60px);}
+.slide.active{opacity:1;transform:translateX(0);z-index:2;}
+.slide.prev{opacity:0;transform:translateX(-60px);z-index:1;}
+.slide-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(2,8,23,.85) 0%,rgba(10,22,40,.7) 50%,rgba(2,8,23,.8) 100%);}
+.slide-bg-img{width:100%;height:100%;object-fit:cover;object-position:center;}
+.slide-bg-video{width:100%;height:100%;object-fit:cover;}
+.slide-content{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+.carousel-dots{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;gap:.75rem;z-index:20;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:all .3s;}
+.dot.active{background:#dc2626;border-color:#dc2626;transform:scale(1.3);}
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:20;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:white;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px);}
+.carousel-arrow:hover{background:rgba(220,38,38,.6);border-color:#dc2626;}
+.carousel-arrow.prev-btn{left:1.5rem;}
+.carousel-arrow.next-btn{right:1.5rem;}
+/* Ticker */
+.ticker-wrap{overflow:hidden;white-space:nowrap;}
+.ticker-track{display:inline-flex;animation:ticker 35s linear infinite;}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+/* Plan cards */
+.plan-bronze{border-color:rgba(180,83,9,.5);background:linear-gradient(135deg,rgba(120,53,15,.15),rgba(2,8,23,.8));}
+.plan-silver{border-color:rgba(148,163,184,.5);background:linear-gradient(135deg,rgba(71,85,105,.15),rgba(2,8,23,.8));}
+.plan-gold{border-color:rgba(245,158,11,.5);background:linear-gradient(135deg,rgba(120,80,0,.15),rgba(2,8,23,.8));}
+.plan-platinum{border-color:rgba(203,213,225,.5);background:linear-gradient(135deg,rgba(100,116,139,.2),rgba(2,8,23,.8));}
+.plan-diamond{border-color:rgba(56,189,248,.5);background:linear-gradient(135deg,rgba(14,116,144,.15),rgba(2,8,23,.8));}
+.plan-badge{position:absolute;top:-10px;right:16px;font-size:.65rem;font-weight:700;padding:2px 10px;border-radius:999px;letter-spacing:.08em;}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== CRYPTO TICKER ===== -->
+<div class="fixed w-full z-40 ticker-wrap py-2" style="top:72px;background:rgba(10,15,30,.97);border-bottom:1px solid rgba(220,38,38,.2);">
+  <div class="ticker-track" id="ticker-inner"></div>
+</div>
+
+<!-- ===== HERO CAROUSEL ===== -->
+<section class="hero-carousel" style="margin-top:104px;">
+
+  <!-- SLIDE 1: Video -->
+  <div class="slide active" id="slide-0">
+    <div style="position:absolute;inset:0;overflow:hidden;">
+      <video autoplay muted loop playsinline class="slide-bg-video">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);color:#f87171;">
+        <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span> Live AI Trading
+      </div>
+      <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2rem,5vw,4.5rem);line-height:1.1;">AI-Powered<br><span style="color:#dc2626;">Trading Platform</span></h1>
+      <p class="text-slate-300 mb-8 max-w-xl mx-auto leading-relaxed" style="font-size:clamp(.95rem,2vw,1.2rem);">Trade smarter with advanced analytics and real-time insights. Earn daily profits automatically.</p>
+      <a href="{% url 'accounts:register' %}" class="btn-red px-10 py-4 rounded-2xl text-base font-bold inline-block shadow-2xl">
+        <i class="fas fa-rocket mr-2"></i> Open Account Free
+      </a>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Pro trader with phone -->
+  <div class="slide" id="slide-1">
+    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&q=80&auto=format&fit=crop" alt="Trader" class="slide-bg-img" style="position:absolute;inset:0;">
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);color:#f87171;">
+        <i class="fas fa-shield-alt"></i> Trusted by 50,000+ Investors
+      </div>
+      <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2rem,5vw,4.5rem);line-height:1.1;">Professional<br><span style="color:#dc2626;">Crypto Trading</span></h1>
+      <p class="text-slate-300 mb-8 max-w-xl mx-auto leading-relaxed" style="font-size:clamp(.95rem,2vw,1.2rem);">Join elite investors earning consistent daily returns. Our AI does the work — you collect profits.</p>
+      <a href="{% url 'accounts:register' %}" class="btn-red px-10 py-4 rounded-2xl text-base font-bold inline-block shadow-2xl">
+        <i class="fas fa-user-plus mr-2"></i> Open Account Free
+      </a>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Phone with forex chart -->
+  <div class="slide" id="slide-2">
+    <img src="https://images.unsplash.com/photo-1642790551116-18a150d248b4?w=1600&q=80&auto=format&fit=crop" alt="Trading Charts" class="slide-bg-img" style="position:absolute;inset:0;">
+    <div class="slide-overlay" style="background:linear-gradient(135deg,rgba(2,8,23,.9),rgba(120,0,0,.4),rgba(2,8,23,.85));"></div>
+    <div class="slide-content">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);color:#f87171;">
+        <i class="fas fa-chart-line"></i> Real-Time Analytics
+      </div>
+      <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2rem,5vw,4.5rem);line-height:1.1;">Real-Time Market<br><span style="color:#dc2626;">Intelligence</span></h1>
+      <p class="text-slate-300 mb-8 max-w-xl mx-auto leading-relaxed" style="font-size:clamp(.95rem,2vw,1.2rem);">Advanced charts, live signals, and AI-driven insights at your fingertips. Profit round the clock.</p>
+      <a href="{% url 'accounts:register' %}" class="btn-red px-10 py-4 rounded-2xl text-base font-bold inline-block shadow-2xl">
+        <i class="fas fa-chart-bar mr-2"></i> Open Account Free
+      </a>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Crypto/analytics visual -->
+  <div class="slide" id="slide-3">
+    <img src="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1600&q=80&auto=format&fit=crop" alt="Crypto Analytics" class="slide-bg-img" style="position:absolute;inset:0;">
+    <div class="slide-overlay" style="background:linear-gradient(135deg,rgba(2,8,23,.88),rgba(50,0,0,.5),rgba(2,8,23,.88));"></div>
+    <div class="slide-content">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);color:#f87171;">
+        <i class="fas fa-coins"></i> Up to 7.5% Daily Return
+      </div>
+      <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2rem,5vw,4.5rem);line-height:1.1;">Grow Your Wealth<br><span style="color:#dc2626;">Every Single Day</span></h1>
+      <p class="text-slate-300 mb-8 max-w-xl mx-auto leading-relaxed" style="font-size:clamp(.95rem,2vw,1.2rem);">From $50 to $500,000 — five expert-crafted plans designed to maximise your crypto returns.</p>
+      <a href="{% url 'accounts:register' %}" class="btn-red px-10 py-4 rounded-2xl text-base font-bold inline-block shadow-2xl">
+        <i class="fas fa-gem mr-2"></i> Open Account Free
+      </a>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Global trading floor -->
+  <div class="slide" id="slide-4">
+    <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1600&q=80&auto=format&fit=crop" alt="Global Finance" class="slide-bg-img" style="position:absolute;inset:0;">
+    <div class="slide-overlay" style="background:linear-gradient(135deg,rgba(2,8,23,.87),rgba(80,0,0,.45),rgba(2,8,23,.9));"></div>
+    <div class="slide-content">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);color:#f87171;">
+        <i class="fas fa-globe"></i> 150+ Countries · 24/7
+      </div>
+      <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2rem,5vw,4.5rem);line-height:1.1;">Global Reach,<br><span style="color:#dc2626;">Local Profits</span></h1>
+      <p class="text-slate-300 mb-8 max-w-xl mx-auto leading-relaxed" style="font-size:clamp(.95rem,2vw,1.2rem);">Join investors from 150+ countries. Deposit, invest, and withdraw in your preferred cryptocurrency.</p>
+      <a href="{% url 'accounts:register' %}" class="btn-red px-10 py-4 rounded-2xl text-base font-bold inline-block shadow-2xl">
+        <i class="fas fa-globe mr-2"></i> Open Account Free
+      </a>
+    </div>
+  </div>
+
+  <!-- Arrows -->
+  <button class="carousel-arrow prev-btn" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+  <button class="carousel-arrow next-btn" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
+
+  <!-- Dots -->
+  <div class="carousel-dots">
+    <span class="dot active" onclick="goSlide(0)"></span>
+    <span class="dot" onclick="goSlide(1)"></span>
+    <span class="dot" onclick="goSlide(2)"></span>
+    <span class="dot" onclick="goSlide(3)"></span>
+    <span class="dot" onclick="goSlide(4)"></span>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<section class="py-10 border-y border-white/5" style="background:rgba(10,22,40,.8);backdrop-filter:blur(10px);">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      <div class="reveal">
+        <div class="font-display text-2xl sm:text-3xl font-black text-white mb-1">$47M<span style="color:#dc2626;">+</span></div>
+        <div class="text-slate-400 text-xs uppercase tracking-wider">Total Paid Out</div>
+      </div>
+      <div class="reveal">
+        <div class="font-display text-2xl sm:text-3xl font-black text-white mb-1">50K<span style="color:#dc2626;">+</span></div>
+        <div class="text-slate-400 text-xs uppercase tracking-wider">Active Investors</div>
+      </div>
+      <div class="reveal">
+        <div class="font-display text-2xl sm:text-3xl font-black text-white mb-1">7.5<span style="color:#dc2626;">%</span></div>
+        <div class="text-slate-400 text-xs uppercase tracking-wider">Max Daily Return</div>
+      </div>
+      <div class="reveal">
+        <div class="font-display text-2xl sm:text-3xl font-black text-white mb-1">99.9<span style="color:#dc2626;">%</span></div>
+        <div class="text-slate-400 text-xs uppercase tracking-wider">Platform Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about" class="py-24 relative overflow-hidden">
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-5" style="background:radial-gradient(circle,#dc2626,transparent);"></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div class="reveal">
+        <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">About CryptoVest</span>
+        <h2 class="font-display text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Built for Serious<br><span style="color:#dc2626;">Crypto Investors</span></h2>
+        <p class="text-slate-400 leading-relaxed mb-5">Since 2019, CryptoVest has empowered investors worldwide to grow digital wealth through AI-powered trading strategies, transparent daily payouts, and institutional-grade security.</p>
+        <p class="text-slate-400 leading-relaxed mb-8">Our 50+ certified analysts manage diversified portfolios across BTC, ETH, and top DeFi assets, delivering consistent returns to over 50,000 investors in 150+ countries.</p>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+          {% for feat in "shield-alt,SSL Secured,256-bit encryption|clock,24/7 Support,Always online|bolt,Daily Profits,Auto-credited|globe,150+ Countries,Global access"|split:"|" %}
+          {% with parts=feat|split:"," %}
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);">
+              <i class="fas fa-{{ parts.0 }} text-red-400 text-sm"></i>
+            </div>
+            <div><div class="text-white font-semibold text-sm">{{ parts.1 }}</div><div class="text-slate-500 text-xs">{{ parts.2 }}</div></div>
+          </div>
+          {% endwith %}
+          {% endfor %}
+        </div>
+        <a href="{% url 'accounts:register' %}" class="btn-red px-7 py-3.5 rounded-xl inline-block text-sm font-bold">Start Earning Today <i class="fas fa-arrow-right ml-2"></i></a>
+      </div>
+      <div class="reveal">
+        <div class="glass rounded-3xl p-8 border border-red-500/20">
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-slate-400 text-sm font-medium">Portfolio Growth</span>
+            <span class="text-green-400 text-sm font-bold">+284.7% YTD</span>
+          </div>
+          <div class="flex items-end gap-1.5 h-36 mb-4">
+            {% for h in "20,35,28,50,42,65,55,72,60,85,78,100"|split:"," %}
+            <div class="flex-1 rounded-t" style="height:{{ h }}%;background:linear-gradient(to top,#b91c1c,rgba(220,38,38,.3));"></div>
+            {% endfor %}
+          </div>
+          <div class="flex justify-between text-xs text-slate-600 mb-6"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Dec</span></div>
+          <div class="grid grid-cols-3 gap-3 pt-5 border-t border-white/8 text-center">
+            <div><div class="text-red-400 font-bold text-lg">$2.4M</div><div class="text-slate-500 text-xs">Daily Volume</div></div>
+            <div><div class="text-green-400 font-bold text-lg">+3.2%</div><div class="text-slate-500 text-xs">24h Return</div></div>
+            <div><div class="text-sky-400 font-bold text-lg">1,247</div><div class="text-slate-500 text-xs">Live Trades</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INVESTMENT PLANS ===== -->
+<section id="plans" class="py-24" style="background:linear-gradient(180deg,rgba(10,22,40,.6),rgba(2,8,23,1));">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">Investment Plans</span>
+      <h2 class="font-display text-3xl sm:text-5xl font-black text-white mb-4">Choose Your <span style="color:#dc2626;">Growth Path</span></h2>
+      <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">Five expertly-crafted tiers to match every financial goal. All plans credit profits daily, automatically.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+      {% for plan in plans %}
+      <div class="card-hover reveal rounded-2xl p-6 border relative plan-{{ plan.color_class }}">
+        {% if plan.badge %}
+        <div class="plan-badge" style="background:{% if plan.color_class == 'diamond' %}rgba(56,189,248,.2);color:#38bdf8;border:1px solid rgba(56,189,248,.4);{% elif plan.color_class == 'gold' %}rgba(245,158,11,.2);color:#f59e0b;border:1px solid rgba(245,158,11,.4);{% else %}rgba(220,38,38,.2);color:#f87171;border:1px solid rgba(220,38,38,.4);{% endif %}">
+          {{ plan.badge }}
+        </div>
+        {% endif %}
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+          style="background:{% if plan.color_class == 'diamond' %}rgba(56,189,248,.15){% elif plan.color_class == 'gold' %}rgba(245,158,11,.15){% elif plan.color_class == 'platinum' %}rgba(148,163,184,.15){% elif plan.color_class == 'silver' %}rgba(100,116,139,.15){% else %}rgba(180,83,9,.15){% endif %};">
+          <i class="fas fa-{{ plan.icon }} text-xl"
+            style="color:{% if plan.color_class == 'diamond' %}#38bdf8{% elif plan.color_class == 'gold' %}#f59e0b{% elif plan.color_class == 'platinum' %}#cbd5e1{% elif plan.color_class == 'silver' %}#94a3b8{% else %}#fb923c{% endif %};"></i>
+        </div>
+        <h3 class="font-display text-base font-bold text-white mb-1">{{ plan.name }}</h3>
+        <div class="text-3xl font-display font-black mb-0.5"
+          style="color:{% if plan.color_class == 'diamond' %}#38bdf8{% elif plan.color_class == 'gold' %}#f59e0b{% elif plan.color_class == 'platinum' %}#cbd5e1{% elif plan.color_class == 'silver' %}#94a3b8{% else %}#fb923c{% endif %};">
+          {{ plan.daily_profit_percent }}%
+        </div>
+        <div class="text-slate-500 text-xs mb-5">Daily Profit</div>
+        <div class="space-y-2.5 mb-6 text-sm">
+          <div class="flex justify-between py-1.5 border-b border-white/5">
+            <span class="text-slate-400">Min Deposit</span>
+            <span class="text-white font-semibold">${{ plan.min_deposit }}</span>
+          </div>
+          <div class="flex justify-between py-1.5 border-b border-white/5">
+            <span class="text-slate-400">Max Deposit</span>
+            <span class="text-white font-semibold">${{ plan.max_deposit }}</span>
+          </div>
+          <div class="flex justify-between py-1.5 border-b border-white/5">
+            <span class="text-slate-400">Duration</span>
+            <span class="text-white font-semibold">{{ plan.duration_days }} Days</span>
+          </div>
+          <div class="flex justify-between py-1.5">
+            <span class="text-slate-400">Total ROI</span>
+            <span class="text-green-400 font-bold">{{ plan.total_return_percent }}%</span>
+          </div>
+        </div>
+        <a href="{% url 'accounts:register' %}" class="block text-center py-3 rounded-xl text-sm font-bold transition-all duration-300"
+          style="{% if plan.color_class == 'gold' %}background:linear-gradient(135deg,#d97706,#f59e0b);color:#020817;{% elif plan.color_class == 'diamond' %}background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.3);{% else %}background:rgba(220,38,38,.15);color:#f87171;border:1px solid rgba(220,38,38,.3);{% endif %}"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          Invest Now <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+      {% empty %}
+      <div class="col-span-5 text-center py-12 text-slate-500">Investment plans loading…</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how-it-works" class="py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">Simple Process</span>
+      <h2 class="font-display text-3xl sm:text-5xl font-black text-white mb-4">How It <span style="color:#dc2626;">Works</span></h2>
+      <p class="text-slate-400 max-w-xl mx-auto">Start earning in four simple steps. No experience needed.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      {% for step in "1|user-plus|Create Account|Register free in 60 seconds. No ID verification needed to get started.|2|wallet|Fund Account|Deposit BTC, ETH, USDT, BNB, or SOL to your account easily and securely.|3|chart-line|Choose a Plan|Select from five investment plans and activate daily profit accrual instantly.|4|coins|Withdraw Profits|Withdraw your earnings anytime. Processed within 24 hours to any wallet."|split:"|" %}
+      {% endfor %}
+      {% for item in steps_data %}{% endfor %}
+      <!-- Static steps since no context var -->
+      {% for i in "1,2,3,4"|split:"," %}
+      <div class="reveal text-center">
+        <div class="relative inline-flex mb-6">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(220,38,38,.15),rgba(220,38,38,.05));border:1px solid rgba(220,38,38,.3);">
+            {% if i == "1" %}<i class="fas fa-user-plus text-red-400 text-2xl"></i>
+            {% elif i == "2" %}<i class="fas fa-wallet text-red-400 text-2xl"></i>
+            {% elif i == "3" %}<i class="fas fa-chart-line text-red-400 text-2xl"></i>
+            {% else %}<i class="fas fa-coins text-red-400 text-2xl"></i>{% endif %}
+          </div>
+          <span class="absolute -top-3 -right-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black font-display text-white" style="background:#dc2626;">{{ i }}</span>
+        </div>
+        {% if i == "1" %}
+        <h3 class="font-display font-bold text-white mb-2 text-base">Create Account</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Register free in 60 seconds. No ID verification needed to start.</p>
+        {% elif i == "2" %}
+        <h3 class="font-display font-bold text-white mb-2 text-base">Fund Account</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Deposit BTC, ETH, USDT, BNB, or SOL securely to your wallet.</p>
+        {% elif i == "3" %}
+        <h3 class="font-display font-bold text-white mb-2 text-base">Choose a Plan</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Select from five investment plans and start earning daily profits.</p>
+        {% else %}
+        <h3 class="font-display font-bold text-white mb-2 text-base">Withdraw Profits</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Withdraw earnings anytime, processed within 24 hours to any wallet.</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section id="testimonials" class="py-24" style="background:linear-gradient(135deg,rgba(15,32,68,.5),rgba(2,8,23,.9));">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">Testimonials</span>
+      <h2 class="font-display text-3xl sm:text-5xl font-black text-white mb-4">What Investors <span style="color:#dc2626;">Say</span></h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for t in "James A.,JA,Lagos Nigeria,silver,Starting with Silver, I earned $875 in 14 days. Now I'm on Platinum!|Sarah K.,SK,Seoul South Korea,sky,Withdrawn twice — both within 12 hours. Dashboard is beautiful and fast.|Marcus C.,MC,Toronto Canada,purple,Gold plan gave me 73.5% total return. Most transparent platform I've used.|Fatima O.,FO,Abuja Nigeria,green,WhatsApp support replied in minutes. Referred 5 friends who are all profiting too.|Raj M.,RM,Mumbai India,pink,Started skeptical — now I'm Diamond. Daily profits credited with zero manual effort.|Amara P.,AP,London UK,orange,Most professional crypto platform I've tried. Exceptional service and fast payouts!"|split:"|" %}
+      {% with parts=t|split:"," %}
+      <div class="glass rounded-2xl p-6 card-hover reveal border border-white/5 hover:border-red-500/20 transition-all">
+        <div class="flex gap-1 mb-4">{% for s in "1,2,3,4,5"|split:"," %}<i class="fas fa-star text-yellow-400 text-sm"></i>{% endfor %}</div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-5">"{{ parts.4 }}"</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 text-white" style="background:linear-gradient(135deg,#b91c1c,#dc2626);">{{ parts.1 }}</div>
+          <div><div class="text-white font-semibold text-sm">{{ parts.0 }}</div><div class="text-slate-500 text-xs">{{ parts.2 }} {{ parts.3 }}</div></div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq" class="py-24">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">FAQ</span>
+      <h2 class="font-display text-3xl sm:text-5xl font-black text-white mb-4">Common <span style="color:#dc2626;">Questions</span></h2>
+    </div>
+    <div class="space-y-3">
+      {% for faq in "How do I start investing?|Register free, deposit crypto, choose a plan, and watch daily profits accrue automatically in your dashboard.|When are profits credited?|Profits are calculated and credited to your balance every 24 hours automatically — no manual action needed.|What cryptocurrencies can I deposit?|We accept Bitcoin (BTC), Ethereum (ETH), Tether (USDT TRC20), BNB, and Solana (SOL).|How long does withdrawal take?|Withdrawals are processed within 24 hours. Most are completed within 1–6 hours during business hours.|Is my investment secure?|Yes. We use 256-bit SSL encryption, cold wallet storage, and our risk management system protects all funds.|Can I run multiple investments?|Yes! Invest in multiple plans simultaneously. All profits from active plans are consolidated daily.|What is the referral bonus?|Invite friends and earn 5% of their first deposit as a bonus, credited directly to your balance."|split:"|" %}
+      {% if forloop.counter|divisibleby:2 %}{% else %}
+      <div class="glass rounded-2xl overflow-hidden reveal border border-white/5 hover:border-red-500/20 transition-all">
+        <button class="faq-btn w-full flex items-center justify-between p-5 text-left" onclick="toggleFaq(this)">
+          <span class="text-white font-medium text-sm">{{ faq }}</span>
+          <i class="fas fa-plus text-red-400 text-xs transition-transform duration-300 flex-shrink-0 ml-4"></i>
+        </button>
+        <div class="faq-body hidden px-5 pb-5 text-slate-400 text-sm leading-relaxed border-t border-white/5 pt-4 mt-0">
+          {% with faqlist=faq %}{% endwith %}
+          <!-- answer populated by JS -->
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact" class="py-24" style="background:linear-gradient(135deg,rgba(15,32,68,.4),rgba(2,8,23,.9));">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div class="reveal">
+        <span class="inline-block text-red-400 text-xs font-bold tracking-widest uppercase mb-3 px-3 py-1 rounded-full" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);">Contact Us</span>
+        <h2 class="font-display text-3xl sm:text-4xl font-black text-white mb-6">We're Here <span style="color:#dc2626;">24/7</span></h2>
+        <p class="text-slate-400 mb-8 leading-relaxed">Our expert team is available around the clock. Reach us on WhatsApp for the fastest response.</p>
+        <div class="space-y-4">
+          <a href="https://wa.me/2349121304245" class="flex items-center gap-4 glass rounded-2xl p-4 hover:border-green-500/30 transition-all group border border-white/5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(37,211,102,.15);">
+              <i class="fab fa-whatsapp text-green-400 text-xl"></i>
+            </div>
+            <div><div class="text-white font-semibold text-sm group-hover:text-green-400 transition-colors">WhatsApp – Fastest Response</div><div class="text-slate-400 text-xs">+234 912 130 4245</div></div>
+            <i class="fas fa-external-link-alt text-slate-600 ml-auto text-xs"></i>
+          </a>
+          <div class="flex items-center gap-4 glass rounded-2xl p-4 border border-white/5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(220,38,38,.1);">
+              <i class="fas fa-envelope text-red-400 text-xl"></i>
+            </div>
+            <div><div class="text-white font-semibold text-sm">Email Support</div><div class="text-slate-400 text-xs">support@cryptovest.com</div></div>
+          </div>
+          <div class="flex items-center gap-4 glass rounded-2xl p-4 border border-white/5">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,.1);">
+              <i class="fab fa-telegram text-sky-400 text-xl"></i>
+            </div>
+            <div><div class="text-white font-semibold text-sm">Telegram</div><div class="text-slate-400 text-xs">@CryptoVestSupport</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="glass rounded-3xl p-8 border border-white/5">
+          <h3 class="font-display text-xl font-bold text-white mb-6">Send a Message</h3>
+          <div class="space-y-4">
+            <input type="text" placeholder="Full Name" class="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none focus:border-red-500 transition-colors placeholder-slate-600" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+            <input type="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none focus:border-red-500 transition-colors placeholder-slate-600" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+            <textarea rows="4" placeholder="Your message..." class="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none focus:border-red-500 transition-colors placeholder-slate-600 resize-none" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);"></textarea>
+            <button onclick="this.innerHTML='<i class=\'fas fa-check mr-2\'></i>Sent!';this.style.background='linear-gradient(135deg,#16a34a,#22c55e)';setTimeout(()=>{this.innerHTML='<i class=\'fas fa-paper-plane mr-2\'></i>Send Message';this.style.background='';},3000);" class="btn-red w-full py-3.5 rounded-xl text-sm font-bold">
+              <i class="fas fa-paper-plane mr-2"></i>Send Message
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="py-20 relative overflow-hidden">
+  <div class="absolute inset-0" style="background:linear-gradient(135deg,#0f2044,#1a0a0a);"></div>
+  <div class="absolute inset-0 opacity-20" style="background:radial-gradient(ellipse at 30% 50%,rgba(220,38,38,.5),transparent 55%),radial-gradient(ellipse at 70% 50%,rgba(56,189,248,.2),transparent 55%);"></div>
+  <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal">
+    <h2 class="font-display text-3xl sm:text-5xl font-black text-white mb-4">Ready to Start <span style="color:#dc2626;">Earning?</span></h2>
+    <p class="text-slate-300 text-lg mb-8">Join 50,000+ investors growing wealth on CryptoVest. Start with as little as $50.</p>
+    <a href="{% url 'accounts:register' %}" class="btn-red px-12 py-4 rounded-2xl text-lg font-bold inline-block shadow-2xl">
+      <i class="fas fa-rocket mr-2"></i>Create Free Account Now
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ===== CAROUSEL =====
+let currentSlide = 0;
+const totalSlides = 5;
+let autoplayTimer;
+
+function goSlide(n) {
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  slides[currentSlide].classList.remove('active');
+  slides[currentSlide].classList.add('prev');
+  setTimeout(() => slides[currentSlide].classList.remove('prev'), 900);
+  currentSlide = (n + totalSlides) % totalSlides;
+  slides[currentSlide].classList.add('active');
+  dots.forEach((d,i) => d.classList.toggle('active', i === currentSlide));
+}
+
+function moveSlide(dir) {
+  goSlide(currentSlide + dir);
+  resetAutoplay();
+}
+
+function startAutoplay() {
+  autoplayTimer = setInterval(() => goSlide(currentSlide + 1), 4500);
+}
+
+function resetAutoplay() {
+  clearInterval(autoplayTimer);
+  startAutoplay();
+}
+
+startAutoplay();
+
+// ===== CRYPTO TICKER =====
+const coins = [
+  {s:'BTC',p:67842.50,c:2.34},{s:'ETH',p:3521.20,c:1.87},
+  {s:'USDT',p:1.00,c:0.01},{s:'BNB',p:578.30,c:-0.72},
+  {s:'SOL',p:178.90,c:4.21},{s:'XRP',p:0.582,c:1.15},
+  {s:'ADA',p:0.451,c:-1.23},{s:'AVAX',p:38.20,c:3.10},
+  {s:'DOGE',p:0.162,c:5.44},{s:'MATIC',p:0.891,c:-0.55},
+  {s:'DOT',p:7.82,c:2.10},{s:'LTC',p:84.30,c:1.55},
+];
+
+function buildTicker() {
+  const el = document.getElementById('ticker-inner');
+  const all = [...coins,...coins];
+  el.innerHTML = all.map(c => {
+    const pos = c.c >= 0;
+    return `<div class="flex items-center gap-2 mr-8 flex-shrink-0">
+      <span class="text-slate-400 text-xs font-medium">${c.s}/USD</span>
+      <span class="text-white text-xs font-bold font-mono">$${c.p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})}</span>
+      <span class="text-xs font-semibold ${pos?'text-green-400':'text-red-400'}">${pos?'▲':'▼'} ${Math.abs(c.c).toFixed(2)}%</span>
+      <span style="color:#ffffff22;margin:0 4px">│</span>
+    </div>`;
+  }).join('');
+}
+buildTicker();
+setInterval(() => {
+  coins.forEach(c => {
+    c.p *= (1 + (Math.random() - 0.5) * 0.002);
+    c.c = parseFloat(((Math.random() - 0.42) * 12).toFixed(2));
+  });
+  buildTicker();
+}, 8000);
+
+// ===== FAQ =====
+const faqs = [
+  ['How do I start investing?','Register free, deposit crypto, choose an investment plan, and profits accrue automatically every 24 hours to your balance.'],
+  ['When are profits credited?','Profits are calculated and credited to your balance every 24 hours automatically — no manual action needed on your part.'],
+  ['What cryptocurrencies can I deposit?','We accept Bitcoin (BTC), Ethereum (ETH), Tether (USDT TRC20), BNB, and Solana (SOL). More currencies coming soon.'],
+  ['How long does withdrawal take?','Withdrawals are processed within 24 hours. Most requests are completed within 1–6 hours during business hours.'],
+  ['Is my investment secure?','Yes — 256-bit SSL encryption, cold wallet storage, and our AI risk management system protects all client funds at all times.'],
+  ['Can I run multiple investments?','Absolutely! Invest in multiple plans simultaneously. All profits from active plans are consolidated daily in your balance.'],
+  ['What is the referral bonus?','Invite friends and earn 5% of their first deposit as a bonus credited instantly to your account balance.'],
+];
+document.querySelectorAll('.faq-btn').forEach((btn, i) => {
+  const body = btn.nextElementSibling;
+  if (faqs[i]) body.textContent = faqs[i][1];
+});
+function toggleFaq(btn) {
+  const body = btn.nextElementSibling;
+  const icon = btn.querySelector('i');
+  const open = !body.classList.contains('hidden');
+  document.querySelectorAll('.faq-body').forEach(b => b.classList.add('hidden'));
+  document.querySelectorAll('.faq-btn i').forEach(ic => { ic.classList.remove('fa-minus'); ic.classList.add('fa-plus'); ic.style.transform='rotate(0deg)'; });
+  if (!open) { body.classList.remove('hidden'); icon.classList.replace('fa-plus','fa-minus'); }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Transactions – CryptoVest{% endblock %}
+{% block page_title %}Transaction History{% endblock %}
+{% block dashboard_content %}
+<div class="flex gap-1 mb-6 p-1 rounded-2xl w-fit" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);">
+  <button onclick="showTab('dep')" id="tab-dep" class="tab-btn px-5 py-2 rounded-xl text-sm font-semibold transition-all text-white" style="background:rgba(220,38,38,.2);color:#f87171;">Deposits</button>
+  <button onclick="showTab('wd')" id="tab-wd" class="tab-btn px-5 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400">Withdrawals</button>
+  <button onclick="showTab('inv')" id="tab-inv" class="tab-btn px-5 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400">Investments</button>
+</div>
+
+<div id="tab-dep-c">
+  {% if deposits %}
+  <div class="glass rounded-2xl overflow-hidden border border-white/5">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Date</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Crypto</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Amount</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium hidden sm:table-cell">TxHash</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Status</th>
+        </tr></thead>
+        <tbody>{% for d in deposits %}
+        <tr style="border-bottom:1px solid rgba(255,255,255,.03);" class="hover:bg-white/2 transition-colors">
+          <td class="p-4 text-slate-300">{{ d.created_at|date:"M d, Y" }}</td>
+          <td class="p-4 text-white font-semibold">{{ d.crypto_type }}</td>
+          <td class="p-4 text-white font-bold">${{ d.amount|floatformat:2 }}</td>
+          <td class="p-4 text-slate-500 font-mono text-xs hidden sm:table-cell">{{ d.transaction_hash|truncatechars:22 }}</td>
+          <td class="p-4"><span class="badge-{{ d.status }} text-xs px-2.5 py-1 rounded-full font-semibold">{{ d.status|title }}</span></td>
+        </tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}<div class="glass rounded-2xl p-12 text-center text-slate-500 border border-white/5">No deposits yet.</div>{% endif %}
+</div>
+
+<div id="tab-wd-c" class="hidden">
+  {% if withdrawals %}
+  <div class="glass rounded-2xl overflow-hidden border border-white/5">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Date</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Crypto</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Amount</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium hidden sm:table-cell">Wallet</th>
+          <th class="text-left p-4 text-slate-400 text-xs uppercase tracking-wider font-medium">Status</th>
+        </tr></thead>
+        <tbody>{% for w in withdrawals %}
+        <tr style="border-bottom:1px solid rgba(255,255,255,.03);" class="hover:bg-white/2 transition-colors">
+          <td class="p-4 text-slate-300">{{ w.created_at|date:"M d, Y" }}</td>
+          <td class="p-4 text-white font-semibold">{{ w.crypto_type }}</td>
+          <td class="p-4 text-white font-bold">${{ w.amount|floatformat:2 }}</td>
+          <td class="p-4 text-slate-500 font-mono text-xs hidden sm:table-cell">{{ w.wallet_address|truncatechars:22 }}</td>
+          <td class="p-4"><span class="badge-{{ w.status }} text-xs px-2.5 py-1 rounded-full font-semibold">{{ w.status|title }}</span></td>
+        </tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}<div class="glass rounded-2xl p-12 text-center text-slate-500 border border-white/5">No withdrawals yet.</div>{% endif %}
+</div>
+
+<div id="tab-inv-c" class="hidden">
+  {% if investments %}
+  <div class="space-y-3">
+    {% for inv in investments %}
+    <div class="glass rounded-xl p-5 flex flex-wrap items-center gap-4 border border-white/5">
+      <div class="min-w-0 flex-1"><div class="text-white font-semibold text-sm">{{ inv.plan.name }} Plan</div><div class="text-slate-500 text-xs">{{ inv.start_date|date:"M d, Y" }}</div></div>
+      <div class="text-center"><div class="text-white font-bold text-sm">${{ inv.amount|floatformat:2 }}</div><div class="text-slate-500 text-xs">Principal</div></div>
+      <div class="text-center"><div class="text-green-400 font-bold text-sm">+${{ inv.profit_earned|floatformat:2 }}</div><div class="text-slate-500 text-xs">Earned</div></div>
+      <div class="text-center"><div class="text-red-400 font-bold text-sm">{{ inv.plan.daily_profit_percent }}%</div><div class="text-slate-500 text-xs">Daily</div></div>
+      <span class="badge-{{ inv.status }} text-xs px-2.5 py-1 rounded-full font-semibold">{{ inv.status|title }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}<div class="glass rounded-2xl p-12 text-center text-slate-500 border border-white/5">No investments yet.</div>{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showTab(t){
+  ['dep','wd','inv'].forEach(x=>{
+    document.getElementById('tab-'+x+'-c').classList.toggle('hidden',x!==t);
+    const btn=document.getElementById('tab-'+x);
+    btn.style.background=x===t?'rgba(220,38,38,.2)':'';
+    btn.style.color=x===t?'#f87171':'#94a3b8';
+  });
+}
+</script>
+{% endblock %}
