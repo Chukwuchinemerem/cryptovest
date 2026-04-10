@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-cryptovest-change-me-in-production-abc123xyz')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.render.com').split(',')
+ALLOWED_HOSTS = os.environ.get('127.0.0.1:8000', 'cryptovest-gtl2.onrender.com').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
